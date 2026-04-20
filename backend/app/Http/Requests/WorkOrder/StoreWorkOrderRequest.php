@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Http\Requests\WorkOrder;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreWorkOrderRequest extends FormRequest
+{
+    public function authorize(): bool { return true; }
+
+    public function rules(): array
+    {
+        return [
+            'title'            => ['required', 'string', 'max:255'],
+            'description'      => ['nullable', 'string'],
+            'priority'         => ['required', 'in:low,medium,high,critical'],
+            'type'             => ['required', 'in:corrective,preventive,inspection,emergency'],
+            'asset_id'         => ['nullable', 'exists:assets,id'],
+            'assigned_to'      => ['nullable', 'exists:users,id'],
+            'due_date'         => ['nullable', 'date', 'after_or_equal:today'],
+            'estimated_hours'  => ['nullable', 'numeric', 'min:0'],
+        ];
+    }
+}

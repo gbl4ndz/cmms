@@ -1,0 +1,44 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('work_orders', function (Blueprint $table) {
+            $table->id();
+            $table->string('wo_number')->unique(); // e.g. WO-2024-00001
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->enum('status', ['open', 'in_progress', 'on_hold', 'closed'])->default('open');
+            $table->enum('priority', ['low', 'medium', 'high', 'critical'])->default('medium');
+            $table->enum('type', ['corrective', 'preventive', 'inspection', 'emergency'])->default('corrective');
+            $table->foreignId('asset_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('created_by')->constrained('users');
+            $table->timestamp('due_date')->nullable();
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('completed_at')->nullable();
+            $table->decimal('estimated_hours', 6, 2)->nullable();
+            $table->decimal('actual_hours', 6, 2)->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index('status');
+            $table->index('priority');
+            $table->index('asset_id');
+            $table->index('assigned_to');
+            $table->index('created_by');
+            $table->index('due_date');
+            $table->index(['status', 'priority']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('work_orders');
+    }
+};
